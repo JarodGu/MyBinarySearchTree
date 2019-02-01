@@ -2,14 +2,30 @@
 
 using namespace std;
 
-std::ostream operator<<(std::ostream &outStream, const BinTree &b)
+/*
+ * Overloads the cout operator using the same method
+ * as displaySideways.
+ */
+std::ostream& operator<<(std::ostream &outStream, const BinTree &b)
 {
-    return outStream(nullptr);
+    b.coutHelper(outStream, b.root, 0);
+    return outStream;
 }
 
-std::istream operator>>(std::istream &inStream, const BinTree &b)
+void BinTree::coutHelper(std::ostream &outStream, const BinTree::Node *current, int level) const
 {
-    return istream(nullptr);
+    if (current != nullptr)
+    {
+        level++;
+        sideways(current->right, level);
+        // indent for readability, 4 spaces per depth level
+        for (int i = level; i >= 0; i--)
+        {
+            outStream << "    ";
+        }
+        outStream << *current->data << endl;        // display information of object
+        sideways(current->left, level);
+    }
 }
 
 /*

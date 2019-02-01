@@ -9,7 +9,7 @@
 #include <iostream>
 class BinTree
 {
-    friend std::ostream operator<<(std::ostream &outStream, const BinTree &b);
+    friend std::ostream& operator<<(std::ostream &outStream, const BinTree &b);
 
 public:
     BinTree();
@@ -51,7 +51,7 @@ private:
     void insertHelper(Node* current, NodeData* item);
     bool equalityHelper(const Node* current, const Node* other) const;
     void sideways(Node* current, int level) const;
-
+    void coutHelper(std::ostream &outStream, const Node* current, int level) const;
     const int ARRAYSIZE = 100;
 };
 #endif //ASSIGNMENT2_BINTREE_H
