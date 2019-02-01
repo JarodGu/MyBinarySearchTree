@@ -3,4 +3,4 @@ project(assignment2)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(assignment2 main.cpp bintree.h bintree.cpp nodedata.h nodedata.cpp lab2.cpp)
+add_executable(assignment2 bintree.h bintree.cpp nodedata.h nodedata.cpp lab2.cpp)

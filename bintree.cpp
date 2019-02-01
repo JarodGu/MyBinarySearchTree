@@ -4,12 +4,12 @@ using namespace std;
 
 std::ostream operator<<(std::ostream &outStream, const BinTree &b)
 {
-    return std::ostream(nullptr);
+    return outStream(nullptr);
 }
 
 std::istream operator>>(std::istream &inStream, const BinTree &b)
 {
-    return std::istream(nullptr);
+    return istream(nullptr);
 }
 
 /*
@@ -77,14 +77,70 @@ BinTree::~BinTree()
     makeEmpty();
 }
 
-void BinTree::bstreeToArray(NodeData **arr)
+void BinTree::bstreeToArray(NodeData *arr[])
 {
-
+    int index = 0;
+    inorderHelper(root, index, arr);
+    makeEmpty();
 }
 
-void BinTree::arrayToBSTree(NodeData **arr)
+/*
+ * Helper function for bstreeToArray used to add items in the
+ * tree to a NodeData array using inorder traversal.
+ */
+void BinTree::inorderHelper(Node* current, int &index, NodeData *arr[]) const
 {
+    if(current != nullptr)
+    {
+        // Left
+        inorderHelper(current->left, index, arr);
+        // Current
+        arr[index] = new NodeData(*current->data);
+        index++;
+        // Right
+        inorderHelper(current->right, index, arr);
+    }
+}
 
+/*
+ * Populates a binary search tree with elements from a sorted array.
+ * Resulting tree is balanced.
+ * Precondition: NodeData* array is sorted and calling tree is empty
+ * Postcondition: NodeData* array is filled with nullptr's
+ * NOTE, how can I tell the highest element in the array?
+ * ANSWER: Since I'm not inserting nullptr's with bstreeToArray,
+ *         the size will be the number of non-null values.
+ *
+ */
+void BinTree::arrayToBSTree(NodeData *arr[])
+{
+    // Get size
+    int size = 0;
+    while(arr[size] != nullptr)
+    {
+        size++;
+    }
+    arrayToBSTHelper(root, 0, size, arr);
+}
+
+/*
+ * Helper function for arrayToBSTree used to do balanced inserts.
+ */
+void BinTree::arrayToBSTHelper(BinTree::Node *current, int low, int high, NodeData *arr[])
+{
+    // Base case
+    if( low > high)
+    {
+        return;
+    }
+    else
+    {
+        int mid = (low + high)/2;
+        insert(arr[mid]);
+        arr[mid] = nullptr;
+        arrayToBSTHelper(current->left, low, mid-1, arr);
+        arrayToBSTHelper(current->right, mid+1, high, arr);
+    }
 }
 
 /*
@@ -213,12 +269,36 @@ void BinTree::insertHelper(BinTree::Node *current, NodeData *item)
 
 /*
  * Returns the height of the binary search tree from a
- * given Node. The height of a node at a leaf is 1.
+ * given NodeData. The height of a node at a leaf is 1.
  * Height of a value not found is 0.
  */
-int BinTree::getHeight(const NodeData &n) const
+int BinTree::getHeight(const NodeData &target) const
 {
-    return 0;
+    return heightHelper(root, target, 1);
+}
+
+int BinTree::heightHelper(const BinTree::Node *current, const NodeData &target, int height) const
+{
+
+    if(current == nullptr)
+    {
+        return 0;
+    }
+        // Node data found!
+    if(target == *current->data)
+    {
+        return height;
+    }
+        // Node data is less than current data. Go left
+    else if(target < *current->data)
+    {
+        return heightHelper(current->left, target, height+1);
+    }
+        // Node data is greater than current data. Go right
+    else if(target > *current->data)
+    {
+        return heightHelper(current->right, target, height+1);
+    }
 }
 
 /*
@@ -232,25 +312,6 @@ void BinTree::displaySideways() const
     sideways(root, 0);
 }
 
-BinTree &BinTree::operator=(const BinTree &b)
-{
-    return <#initializer#>;
-}
-
-bool BinTree::operator==(const BinTree &b) const
-{
-    return false;
-}
-
-bool BinTree::operator!=(const BinTree &b) const
-{
-    return false;
-}
-
-void BinTree::inorderHelper() const
-{
-
-}
 
 /*
  * Helper method for displaySideways
@@ -259,7 +320,7 @@ void BinTree::inorderHelper() const
  */
 void BinTree::sideways(BinTree::Node *current, int level) const
 {
-    if (current != NULL)
+    if (current != nullptr)
     {
         level++;
         sideways(current->right, level);
@@ -272,3 +333,58 @@ void BinTree::sideways(BinTree::Node *current, int level) const
         sideways(current->left, level);
     }
 }
+
+/*
+ * Assigns the values of one tree to another by making
+ * a deep copy. Values in the original tree are deleted
+ * and replaced with the new one.
+ */
+BinTree &BinTree::operator=(const BinTree &b)
+{
+    //Self assignment
+    if(this == &b){
+        return *this;
+    }
+    // Empty the lhs tree
+    makeEmpty();
+    // Copy values in rhs to lhs
+    copyHelper(root, b.root);
+    return *this;
+}
+
+/*
+ * Returns true of two BST's are the same.
+ * Each Node must be in the same place with the same NodeData.
+ */
+bool BinTree::operator==(const BinTree &b) const
+{
+    return equalityHelper(root, b.root);
+}
+
+bool BinTree::operator!=(const BinTree &b) const
+{
+    return !equalityHelper(root, b.root);
+}
+
+/*
+ * Helper function for the equality operator overload.
+ */
+bool BinTree::equalityHelper(const BinTree::Node *current, const BinTree::Node *other) const
+{
+    if(current == nullptr && other == nullptr)
+    {
+        return true;
+    }
+    if(current != nullptr && other != nullptr)
+    {
+        return
+        (
+                *current->data == *other->data
+                && equalityHelper(current->left, other->left)
+                && equalityHelper(current->right, other->right)
+        );
+    }
+    // One nullptr, one not
+    return false;
+}
+

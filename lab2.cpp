@@ -20,11 +20,6 @@ const int ARRAYSIZE = 100;
 void buildTree(BinTree&, ifstream&);      // 
 void initArray(NodeData*[]);             // initialize array to NULL
 
-int main() //custom main
-{
-    NodeData a("aaa");
-}
-/*
 int main() {
 	// create file object infile and open it
 	// for testing, call your data file something appropriate, e.g., data2.txt
@@ -99,7 +94,6 @@ int main() {
 
 	return 0;
 }
-*/
 //------------------------------- buildTree ----------------------------------
 // YOU COMMENT - Hi
 
@@ -130,5 +124,5 @@ void buildTree(BinTree& T, ifstream& infile) {
 
 void initArray(NodeData* ndArray[]) {
 	for (int i = 0; i < ARRAYSIZE; i++)
-		ndArray[i] = NULL;
+		ndArray[i] = nullptr;
 }

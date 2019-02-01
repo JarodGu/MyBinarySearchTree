@@ -6,10 +6,10 @@
 #define ASSIGNMENT2_BINTREE_H
 
 #include "nodedata.h"
+#include <iostream>
 class BinTree
 {
     friend std::ostream operator<<(std::ostream &outStream, const BinTree &b);
-    friend std::istream operator>>(std::istream &inStream, const BinTree &b);
 
 public:
     BinTree();
@@ -42,11 +42,16 @@ private:
     Node* root;
 
     // Utility functions
-    void inorderHelper() const;
+    void inorderHelper(Node* current, int &index, NodeData* arr[]) const;
+    void arrayToBSTHelper(Node* current, int low, int high, NodeData* arr[]);
     void copyHelper(Node* lhs, Node *rhs);
     void deleteHelper(Node* current);
     Node* retrieveHelper(Node* current, const NodeData &target) const;
+    int heightHelper(const Node* current, const NodeData &target, int height) const;
     void insertHelper(Node* current, NodeData* item);
+    bool equalityHelper(const Node* current, const Node* other) const;
     void sideways(Node* current, int level) const;
+
+    const int ARRAYSIZE = 100;
 };
 #endif //ASSIGNMENT2_BINTREE_H
