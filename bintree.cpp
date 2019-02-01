@@ -180,31 +180,35 @@ BinTree::Node *BinTree::retrieveHelper(BinTree::Node *current, const NodeData &t
 /*
  * Inserts an item into the correct spot in the BinarySearchTree.
  * Creates a new tree if empty.
- * Returns false if the item already exists in the tree.
  */
 bool BinTree::insert(NodeData *item)
 {
-    return false;
+    insertHelper(root, item);
+    return true;
 }
 
 /*
- * TODO
+ *
  */
 void BinTree::insertHelper(BinTree::Node *current, NodeData *item)
 {
     // Empty tree or leaf
-    if(current == nullptr)
+    if (current == nullptr)
     {
         current = new Node;
         current->data = item;
         current->left = nullptr;
-        current->right =nullptr;
+        current->right = nullptr;
     }
-    // Dereference to refer to the string values
-    else if(*item < *current->data)
+        // Dereference to refer to the string values
+    else if (*item < *current->data)
     {
         insertHelper(current->left, item);
-    };
+    }
+    else
+    {
+        insertHelper(current->right, item);
+    }
 }
 
 /*
