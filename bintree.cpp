@@ -3,28 +3,31 @@
 using namespace std;
 
 /*
- * Overloads the cout operator using the same method
- * as displaySideways.
+ * Overloads the cout operator to output the contents of
+ * the BST using inorder traversal.
+ * Ex. "and, eee, ff, iii, not"
  */
 std::ostream& operator<<(std::ostream &outStream, const BinTree &b)
 {
-    b.coutHelper(outStream, b.root, 0);
+    // Handle empty tree
+    if(b.root != nullptr)
+    {
+        b.coutHelper(outStream, b.root);
+    }
+    outStream << endl;
     return outStream;
 }
 
-void BinTree::coutHelper(std::ostream &outStream, const BinTree::Node *current, int level) const
+void BinTree::coutHelper(std::ostream &outStream, const BinTree::Node *current) const
 {
-    if (current != nullptr)
+    if(current->left != nullptr)
     {
-        level++;
-        sideways(current->right, level);
-        // indent for readability, 4 spaces per depth level
-        for (int i = level; i >= 0; i--)
-        {
-            outStream << "    ";
-        }
-        outStream << *current->data << endl;        // display information of object
-        sideways(current->left, level);
+        coutHelper(outStream, current->left);
+    }
+    outStream << *current->data << " ";
+    if(current->right != nullptr)
+    {
+        coutHelper(outStream, current->right);
     }
 }
 
@@ -42,36 +45,91 @@ BinTree::BinTree()
  */
 BinTree::BinTree(BinTree &b)
 {
-    copyHelper(root, b.root);
+    // Copying empty tree
+    if(b.root == nullptr)
+    {
+        root = nullptr;
+    }
+    else
+    {
+        root = new Node;
+        root->left = nullptr;
+        root->right = nullptr;
+        copyHelper(root, b.root);
+    }
 }
 
 /*
  * Helper function for the copy constructor.
- * Traverses a tree inorder and creates a new node.
+ * Traverses a tree in preorder.
  */
-void BinTree::copyHelper(BinTree::Node *lhs, BinTree::Node *rhs)
-{   // Other tree is empty
-    if(lhs == nullptr && rhs == nullptr)
+void BinTree::copyHelper(BinTree::Node *current, BinTree::Node *other)
+{
+    // Copy current data
+    current->data = new NodeData(*other->data);
+    // Copy left data
+    if(other->left != nullptr)
     {
-        return;
+        current->left = new Node;
+        current->left->left = nullptr;
+        current->left->right = nullptr;
+        copyHelper(current->left, other->left);
     }
-    // Other tree is not empty
-    if(root == nullptr && rhs != nullptr)
+    else // other->left is nullptr
     {
-        root = new Node;
-        root->data = new NodeData(*rhs->data);
+        current->left = nullptr;
     }
-    // Copy left then follow if not a leaf
+    // Copy right data
+    if(other->right != nullptr)
+    {
+        current->right = new Node;
+        current->right->left = nullptr;
+        current->right->right = nullptr;
+        copyHelper(current->right, other->right);
+    }
+    else // other->right is nullptr
+    {
+        current->right = nullptr;
+    }
+    /*
+    if(other->right != nullptr)
+    {
+        copyHelper(current->right)
+    }
+    if (other->right != nullptr)
+    {
+        current->left = new Node;
+        current->left->left = nullptr;
+        current->left->right = nullptr;
+        current->left->data = new NodeData(*other->left->data);
+    } else
+     */
+    /*
+    if(other->data == nullptr)
+    {
+        current->data = nullptr;
+    }
+    else
+    {
+        current = new Node;
+        current->left = nullptr;
+        current->right = nullptr;
+        current->data = new NodeData(*other->data);
+
+        copyHelper(current->left, other->left);
+        copyHelper(current->right, other->right);
+    }
+     */
+    /*
     if(rhs->left != nullptr)
     {
-        lhs->left = new Node;
-        lhs->left->data = new NodeData(*rhs->left->data);
         copyHelper(lhs->left, rhs->left);
     }
-    else // Left is null
+    else
     {
         lhs->left = nullptr;
     }
+
     // Copy right then follow if not a leaf
     if(rhs->right != nullptr)
     {
@@ -79,10 +137,11 @@ void BinTree::copyHelper(BinTree::Node *lhs, BinTree::Node *rhs)
         lhs->right->data = new NodeData(*rhs->right->data);
         copyHelper(lhs->right, rhs->right);
     }
-    else // Right is null
+    else
     {
         lhs->right = nullptr;
     }
+     */
 }
 
 /*
@@ -174,9 +233,11 @@ bool BinTree::isEmpty() const
  */
 void BinTree::makeEmpty()
 {
-    deleteHelper(root);
-    // Manually set root to nullptr
-    root = nullptr;
+    if(root != nullptr)
+    {
+        deleteHelper(root);
+        root = nullptr;
+    }
 }
 
 /*
@@ -255,32 +316,65 @@ BinTree::Node *BinTree::retrieveHelper(BinTree::Node *current, const NodeData &t
  */
 bool BinTree::insert(NodeData *item)
 {
-    insertHelper(root, item);
-    return true;
-}
-
-/*
- *
- */
-void BinTree::insertHelper(BinTree::Node *current, NodeData *item)
-{
-    // Empty tree or leaf
-    if (current == nullptr)
+    // Empty tree
+    if(root == nullptr)
     {
-        current = new Node;
-        current->data = item;
-        current->left = nullptr;
-        current->right = nullptr;
-    }
-        // Dereference to refer to the string values
-    else if (*item < *current->data)
-    {
-        insertHelper(current->left, item);
+        root = new Node;
+        root->left = nullptr;
+        root->right = nullptr;
+        root->data = item;
+        return true;
     }
     else
     {
-        insertHelper(current->right, item);
+        return insertHelper(root, item);
     }
+}
+
+/*
+ * NOTE:
+ */
+bool BinTree::insertHelper(BinTree::Node *current, NodeData *item)
+{
+    // Duplicate value found. Return false
+    if(*current->data == *item)
+    {
+        return false;
+    }
+    // Check left
+    else if(*item < *current->data)
+    {
+        if (current->left != nullptr)
+        {
+            return insertHelper(current->left, item);
+        }
+        else
+        {
+            // Construct new node
+            current->left = new Node;
+            current->left->data = item;
+            current->left->left = nullptr;
+            current->left->right = nullptr;
+            return true;
+        }
+    }
+    else if(*item > *current->data)
+    {
+        if(current->right != nullptr)
+        {
+            return insertHelper(current->right, item);
+        }
+        else
+        {
+            // Construct new node
+            current->right = new Node;
+            current->right->data = item;
+            current->right->left = nullptr;
+            current->right->right = nullptr;
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
@@ -361,9 +455,10 @@ BinTree &BinTree::operator=(const BinTree &b)
     if(this == &b){
         return *this;
     }
-    // Empty the lhs tree
     makeEmpty();
-    // Copy values in rhs to lhs
+    root = new Node;
+    root->left = nullptr;
+    root->right = nullptr;
     copyHelper(root, b.root);
     return *this;
 }
@@ -374,12 +469,22 @@ BinTree &BinTree::operator=(const BinTree &b)
  */
 bool BinTree::operator==(const BinTree &b) const
 {
-    return equalityHelper(root, b.root);
+    if(root == nullptr && b.root == nullptr)
+    {
+        return true;
+
+    }
+    else if(root != nullptr && b.root != nullptr)
+    {
+        return equalityHelper(root, b.root);
+    }
+    // 1 null 1 not
+    return false;
 }
 
 bool BinTree::operator!=(const BinTree &b) const
 {
-    return !equalityHelper(root, b.root);
+    return !(root==b.root);
 }
 
 /*
@@ -387,10 +492,59 @@ bool BinTree::operator!=(const BinTree &b) const
  */
 bool BinTree::equalityHelper(const BinTree::Node *current, const BinTree::Node *other) const
 {
+    if(*current->data == *other->data)
+    {
+        // Left
+        if(current->left != nullptr && other->left != nullptr)
+        {
+            equalityHelper(current->left, other->left);
+        }
+        else if(current->left == nullptr && other->left == nullptr)
+        {
+            // do nothing
+        }
+        else // 1 null 1 not
+        {
+            return false;
+        }
+
+        // Right
+        if(current->right != nullptr && other->right != nullptr)
+        {
+            equalityHelper(current->right, other->right);
+        }
+        else if(current->right == nullptr && other->right == nullptr)
+        {
+            // do nothing
+        }
+        else // 1 null 1 not
+        {
+            return false;
+        }
+
+        // Reached last node, all equal
+        return true;
+    }
+    // Data not equal
+    return false;
+    /*
     if(current == nullptr && other == nullptr)
     {
         return true;
     }
+
+    if(current != nullptr && other != nullptr)
+    {
+        return
+        (
+                *current->data == *other->data
+                && equalityHelper(current->left, other->left)
+                && equalityHelper(current->right, other->right)
+        );
+    }
+    return false;
+     */
+    /*
     if(current != nullptr && other != nullptr)
     {
         return
@@ -402,5 +556,6 @@ bool BinTree::equalityHelper(const BinTree::Node *current, const BinTree::Node *
     }
     // One nullptr, one not
     return false;
+     */
 }
 

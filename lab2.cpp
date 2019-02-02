@@ -104,7 +104,6 @@ int main() {
 
 void buildTree(BinTree& T, ifstream& infile) {
 	string s;
-
 	for (;;) {
 		infile >> s;
 		cout << s << ' ';

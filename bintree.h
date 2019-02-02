@@ -7,6 +7,7 @@
 
 #include "nodedata.h"
 #include <iostream>
+#include <fstream>
 class BinTree
 {
     friend std::ostream& operator<<(std::ostream &outStream, const BinTree &b);
@@ -48,10 +49,10 @@ private:
     void deleteHelper(Node* current);
     Node* retrieveHelper(Node* current, const NodeData &target) const;
     int heightHelper(const Node* current, const NodeData &target, int height) const;
-    void insertHelper(Node* current, NodeData* item);
+    bool insertHelper(Node* current, NodeData* item);
     bool equalityHelper(const Node* current, const Node* other) const;
     void sideways(Node* current, int level) const;
-    void coutHelper(std::ostream &outStream, const Node* current, int level) const;
+    void coutHelper(std::ostream &outStream, const Node* current) const;
     const int ARRAYSIZE = 100;
 };
 #endif //ASSIGNMENT2_BINTREE_H
