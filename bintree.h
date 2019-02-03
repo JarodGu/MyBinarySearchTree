@@ -44,7 +44,7 @@ private:
 
     // Utility functions
     void inorderHelper(Node* current, int &index, NodeData* arr[]) const;
-    void arrayToBSTHelper(Node* current, int low, int high, NodeData* arr[]);
+    Node* arrayToBSTHelper(int low, int high, NodeData* arr[]);
     void copyHelper(Node* lhs, Node *rhs);
     void deleteHelper(Node* current);
     Node* retrieveHelper(Node* current, const NodeData &target) const;

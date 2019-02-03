@@ -91,57 +91,6 @@ void BinTree::copyHelper(BinTree::Node *current, BinTree::Node *other)
     {
         current->right = nullptr;
     }
-    /*
-    if(other->right != nullptr)
-    {
-        copyHelper(current->right)
-    }
-    if (other->right != nullptr)
-    {
-        current->left = new Node;
-        current->left->left = nullptr;
-        current->left->right = nullptr;
-        current->left->data = new NodeData(*other->left->data);
-    } else
-     */
-    /*
-    if(other->data == nullptr)
-    {
-        current->data = nullptr;
-    }
-    else
-    {
-        current = new Node;
-        current->left = nullptr;
-        current->right = nullptr;
-        current->data = new NodeData(*other->data);
-
-        copyHelper(current->left, other->left);
-        copyHelper(current->right, other->right);
-    }
-     */
-    /*
-    if(rhs->left != nullptr)
-    {
-        copyHelper(lhs->left, rhs->left);
-    }
-    else
-    {
-        lhs->left = nullptr;
-    }
-
-    // Copy right then follow if not a leaf
-    if(rhs->right != nullptr)
-    {
-        lhs->right = new Node;
-        lhs->right->data = new NodeData(*rhs->right->data);
-        copyHelper(lhs->right, rhs->right);
-    }
-    else
-    {
-        lhs->right = nullptr;
-    }
-     */
 }
 
 /*
@@ -180,42 +129,64 @@ void BinTree::inorderHelper(Node* current, int &index, NodeData *arr[]) const
 /*
  * Populates a binary search tree with elements from a sorted array.
  * Resulting tree is balanced.
- * Precondition: NodeData* array is sorted and calling tree is empty
- * Postcondition: NodeData* array is filled with nullptr's
- * NOTE, how can I tell the highest element in the array?
- * ANSWER: Since I'm not inserting nullptr's with bstreeToArray,
- *         the size will be the number of non-null values.
+ * Precondition:  NodeData* array is sorted
+ * Postcondition: NodeData* array is filled with nullptr's.
+ *                The tree points to the original array data.
  *
  */
 void BinTree::arrayToBSTree(NodeData *arr[])
 {
-    // Get size
-    int size = 0;
-    while(arr[size] != nullptr)
+    // Clear tree if not empty
+    if(root != nullptr)
     {
-        size++;
+        makeEmpty();
     }
-    arrayToBSTHelper(root, 0, size, arr);
+    // Check for empty array
+    if(arr[0] != nullptr)
+    {
+        int size = 0;
+        while (arr[size] != nullptr)
+        {
+            size++;
+        }
+        root = arrayToBSTHelper(0, size - 1, arr);
+    }
 }
 
 /*
  * Helper function for arrayToBSTree used to do balanced inserts.
  */
-void BinTree::arrayToBSTHelper(BinTree::Node *current, int low, int high, NodeData *arr[])
+BinTree::Node* BinTree::arrayToBSTHelper(int low, int high, NodeData *arr[])
 {
     // Base case
     if( low > high)
     {
-        return;
+        return nullptr;
     }
-    else
-    {
+    int mid = (low + high)/2;
+    Node* temp = new Node;
+    temp->data = arr[mid];
+    // Left subtree
+    temp->left = arrayToBSTHelper(low, mid-1, arr);
+    // Right subtree
+    temp->right = arrayToBSTHelper(mid+1, high, arr);
+
+    return temp;
+
+    /*  ATTEMPT 1
         int mid = (low + high)/2;
         insert(arr[mid]);
         arr[mid] = nullptr;
-        arrayToBSTHelper(current->left, low, mid-1, arr);
-        arrayToBSTHelper(current->right, mid+1, high, arr);
+
+            current->left = new Node;
+            current->left->left = nullptr;
+            current->left->right = nullptr;
+
+        arrayToBSTHelper(current, low, mid-1, arr);
+        //arrayToBSTHelper(current->left, low, mid-1, arr);
+        arrayToBSTHelper(current-, mid+1, high, arr);
     }
+    */
 }
 
 /*
@@ -257,6 +228,7 @@ void BinTree::deleteHelper(BinTree::Node *current)
     {
         deleteHelper(current->right);
     }
+    cout << "Deleting: " << *current->data << endl;
     delete current->data;
     delete current;
 }
