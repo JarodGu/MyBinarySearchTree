@@ -95,7 +95,7 @@ int main() {
 	return 0;
 }
 //------------------------------- buildTree ----------------------------------
-// YOU COMMENT - Hi
+// Hello
 
 // To build a tree, read strings from a line, terminating when "$$" is
 // encountered. Since there is some work to do before the actual insert that is

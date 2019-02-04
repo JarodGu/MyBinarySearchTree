@@ -1,6 +1,16 @@
-//
-// Created by Jarod on 1/28/2019.
-//
+// ------------- bintree.h --------------------------------------------------
+// Jarod Guerrero CSS 343 C
+// Created 1/27/19
+// Last Modified 2/3/19
+// -------------------------------------------------------------------------
+// Binary Search Tree header file
+// -------------------------------------------------------------------------
+// The Binary Search Tree contains Nodes with string data
+// Header file contains several private helper functions to recursively
+// implement public functions.
+// Node is also implemented here. It contains a NodeData* and Node* to
+// a left and right child.
+// -------------------------------------------------------------------------
 
 #ifndef ASSIGNMENT2_BINTREE_H
 #define ASSIGNMENT2_BINTREE_H
@@ -45,14 +55,13 @@ private:
     // Utility functions
     void inorderHelper(Node* current, int &index, NodeData* arr[]) const;
     Node* arrayToBSTHelper(int low, int high, NodeData* arr[]);
-    void copyHelper(Node* lhs, Node *rhs);
+    void copyHelper(Node* current, const Node *other);
     void deleteHelper(Node* current);
     Node* retrieveHelper(Node* current, const NodeData &target) const;
-    int heightHelper(const Node* current, const NodeData &target, int height) const;
+    int heightHelper(const Node* current) const;
     bool insertHelper(Node* current, NodeData* item);
     bool equalityHelper(const Node* current, const Node* other) const;
     void sideways(Node* current, int level) const;
     void coutHelper(std::ostream &outStream, const Node* current) const;
-    const int ARRAYSIZE = 100;
 };
 #endif //ASSIGNMENT2_BINTREE_H

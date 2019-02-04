@@ -1,3 +1,16 @@
+// ------------- bintree.cpp --------------------------------------------------
+// Jarod Guerrero CSS 343 C
+// Created 1/27/19
+// Last Modified 2/3/19
+// -------------------------------------------------------------------------
+// Binary Search Tree implementation file
+// -------------------------------------------------------------------------
+// The Binary Search Tree contains Nodes with string data. Each node's left
+// children are less than its data, and right children are greater than.
+// Tree does not allow duplicate values. Contains functions to insert,
+// output, compare, and transfer to an array and back.
+// -------------------------------------------------------------------------
+
 #include "bintree.h"
 
 using namespace std;
@@ -5,7 +18,7 @@ using namespace std;
 /*
  * Overloads the cout operator to output the contents of
  * the BST using inorder traversal.
- * Ex. "and, eee, ff, iii, not"
+ * Ex. "and eee ff iii not"
  */
 std::ostream& operator<<(std::ostream &outStream, const BinTree &b)
 {
@@ -18,6 +31,9 @@ std::ostream& operator<<(std::ostream &outStream, const BinTree &b)
     return outStream;
 }
 
+/*
+ * Helper function for the cout operator. Recursively passes the ostream object.
+ */
 void BinTree::coutHelper(std::ostream &outStream, const BinTree::Node *current) const
 {
     if(current->left != nullptr)
@@ -33,6 +49,7 @@ void BinTree::coutHelper(std::ostream &outStream, const BinTree::Node *current) 
 
 /*
  * Default constructor creates an empty tree
+ * with root as nullptr.
  */
 BinTree::BinTree()
 {
@@ -42,6 +59,7 @@ BinTree::BinTree()
 /*
  * Creates a deep copy of another binary tree and
  * all its elements. Uses pre-order traversal
+ * Elements of the new tree are stored on the heap.
  */
 BinTree::BinTree(BinTree &b)
 {
@@ -63,7 +81,7 @@ BinTree::BinTree(BinTree &b)
  * Helper function for the copy constructor.
  * Traverses a tree in preorder.
  */
-void BinTree::copyHelper(BinTree::Node *current, BinTree::Node *other)
+void BinTree::copyHelper(BinTree::Node *current, const BinTree::Node *other)
 {
     // Copy current data
     current->data = new NodeData(*other->data);
@@ -101,6 +119,10 @@ BinTree::~BinTree()
     makeEmpty();
 }
 
+/*
+ * Populates an array from a BST using inorder traversal.
+ * Resulting array is sorted and leaves the tree empty.
+ */
 void BinTree::bstreeToArray(NodeData *arr[])
 {
     int index = 0;
@@ -132,7 +154,6 @@ void BinTree::inorderHelper(Node* current, int &index, NodeData *arr[]) const
  * Precondition:  NodeData* array is sorted
  * Postcondition: NodeData* array is filled with nullptr's.
  *                The tree points to the original array data.
- *
  */
 void BinTree::arrayToBSTree(NodeData *arr[])
 {
@@ -172,21 +193,6 @@ BinTree::Node* BinTree::arrayToBSTHelper(int low, int high, NodeData *arr[])
     temp->right = arrayToBSTHelper(mid+1, high, arr);
 
     return temp;
-
-    /*  ATTEMPT 1
-        int mid = (low + high)/2;
-        insert(arr[mid]);
-        arr[mid] = nullptr;
-
-            current->left = new Node;
-            current->left->left = nullptr;
-            current->left->right = nullptr;
-
-        arrayToBSTHelper(current, low, mid-1, arr);
-        //arrayToBSTHelper(current->left, low, mid-1, arr);
-        arrayToBSTHelper(current-, mid+1, high, arr);
-    }
-    */
 }
 
 /*
@@ -228,7 +234,7 @@ void BinTree::deleteHelper(BinTree::Node *current)
     {
         deleteHelper(current->right);
     }
-    cout << "Deleting: " << *current->data << endl;
+    //cout << "Deleting: " << *current->data << endl;
     delete current->data;
     delete current;
 }
@@ -276,7 +282,7 @@ BinTree::Node *BinTree::retrieveHelper(BinTree::Node *current, const NodeData &t
         return retrieveHelper(current->left, target);
     }
     // Node data is greater than current data. Go right
-    else if(target > *current->data)
+    else // if(target > *current->data)
     {
         return retrieveHelper(current->right, target);
     }
@@ -285,6 +291,7 @@ BinTree::Node *BinTree::retrieveHelper(BinTree::Node *current, const NodeData &t
 /*
  * Inserts an item into the correct spot in the BinarySearchTree.
  * Creates a new tree if empty.
+ * Returns false if inserting an existing value, otherwise true.
  */
 bool BinTree::insert(NodeData *item)
 {
@@ -304,7 +311,7 @@ bool BinTree::insert(NodeData *item)
 }
 
 /*
- * NOTE:
+ * Helper function for insert
  */
 bool BinTree::insertHelper(BinTree::Node *current, NodeData *item)
 {
@@ -350,37 +357,39 @@ bool BinTree::insertHelper(BinTree::Node *current, NodeData *item)
 }
 
 /*
- * Returns the height of the binary search tree from a
- * given NodeData. The height of a node at a leaf is 1.
+ * Returns the height of an element based on its data.
+ * The height of a node at a leaf is 1.
  * Height of a value not found is 0.
+ * Height of the root is 1 + the number of connections
+ * to the lowest leaf.
  */
 int BinTree::getHeight(const NodeData &target) const
 {
-    return heightHelper(root, target, 1);
+    if(root == nullptr)
+    {
+        return 0;
+    }
+    Node* temp = retrieveHelper(root, target);
+    if(temp == nullptr)
+    {
+        return 0;
+    }
+    return (1 + max( heightHelper(temp->left), heightHelper(temp->right) ) );
+    //return heightHelper(root, target, 1);
 }
 
-int BinTree::heightHelper(const BinTree::Node *current, const NodeData &target, int height) const
+/*
+ * Helper function for getHeight.
+ * Determines the greatest height between a Node*'s
+ * left and right subtree.
+ */
+int BinTree::heightHelper(const Node* current) const
 {
-
     if(current == nullptr)
     {
         return 0;
     }
-        // Node data found!
-    if(target == *current->data)
-    {
-        return height;
-    }
-        // Node data is less than current data. Go left
-    else if(target < *current->data)
-    {
-        return heightHelper(current->left, target, height+1);
-    }
-        // Node data is greater than current data. Go right
-    else if(target > *current->data)
-    {
-        return heightHelper(current->right, target, height+1);
-    }
+    return (1 + max(heightHelper(current->left), heightHelper(current->right)) );
 }
 
 /*
@@ -441,22 +450,15 @@ BinTree &BinTree::operator=(const BinTree &b)
  */
 bool BinTree::operator==(const BinTree &b) const
 {
-    if(root == nullptr && b.root == nullptr)
-    {
-        return true;
-
-    }
-    else if(root != nullptr && b.root != nullptr)
-    {
-        return equalityHelper(root, b.root);
-    }
-    // 1 null 1 not
-    return false;
+    return equalityHelper(root, b.root);
 }
 
+/*
+ * Returns true of two BST's are not equal.
+ */
 bool BinTree::operator!=(const BinTree &b) const
 {
-    return !(root==b.root);
+    return !equalityHelper(root, b.root);
 }
 
 /*
@@ -464,70 +466,21 @@ bool BinTree::operator!=(const BinTree &b) const
  */
 bool BinTree::equalityHelper(const BinTree::Node *current, const BinTree::Node *other) const
 {
-    if(*current->data == *other->data)
-    {
-        // Left
-        if(current->left != nullptr && other->left != nullptr)
-        {
-            equalityHelper(current->left, other->left);
-        }
-        else if(current->left == nullptr && other->left == nullptr)
-        {
-            // do nothing
-        }
-        else // 1 null 1 not
-        {
-            return false;
-        }
-
-        // Right
-        if(current->right != nullptr && other->right != nullptr)
-        {
-            equalityHelper(current->right, other->right);
-        }
-        else if(current->right == nullptr && other->right == nullptr)
-        {
-            // do nothing
-        }
-        else // 1 null 1 not
-        {
-            return false;
-        }
-
-        // Reached last node, all equal
-        return true;
-    }
-    // Data not equal
-    return false;
-    /*
+    // Both subtrees empty
     if(current == nullptr && other == nullptr)
     {
         return true;
     }
-
-    if(current != nullptr && other != nullptr)
+    // Both not null. Check their left and right subtrees.
+    if(current != nullptr & other != nullptr)
     {
         return
         (
-                *current->data == *other->data
-                && equalityHelper(current->left, other->left)
-                && equalityHelper(current->right, other->right)
+            *current->data == *other->data
+            && equalityHelper(current->left, other->left)
+            && equalityHelper(current->right, other->right)
         );
     }
+    // 1 is null, 1 is not
     return false;
-     */
-    /*
-    if(current != nullptr && other != nullptr)
-    {
-        return
-        (
-                *current->data == *other->data
-                && equalityHelper(current->left, other->left)
-                && equalityHelper(current->right, other->right)
-        );
-    }
-    // One nullptr, one not
-    return false;
-     */
 }
-
